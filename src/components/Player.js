@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { playAudio } from "../util";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -16,7 +17,25 @@ const Player = ({
   setCurrentSong,
   songInfo,
   songs,
+  setSongs,
 }) => {
+  //useEffect
+  useEffect(() => {
+    const newSongs = songs.map((selectedSong) => {
+      if (selectedSong.id === currentSong.id) {
+        return {
+          ...selectedSong,
+          active: true,
+        };
+      } else {
+        return {
+          ...selectedSong,
+          active: false,
+        };
+      }
+    });
+    setSongs(newSongs);
+  }, [currentSong]);
   //Event Handlers
   const playSongHandler = () => {
     if (isPlaying) {
@@ -45,10 +64,12 @@ const Player = ({
     if (direction === "skip-back") {
       if ((currentIndex - 1) % songs.length === -1) {
         setCurrentSong(songs[songs.length - 1]);
+        playAudio(isPlaying, audioRef);
         return;
       }
       setCurrentSong(songs[(currentIndex - 1) % songs.length]);
     }
+    playAudio(isPlaying, audioRef);
   };
 
   return (
@@ -62,7 +83,7 @@ const Player = ({
           onChange={dragHandler}
           type="range"
         />
-        <p>{getTime(songInfo.duration)}</p>
+        <p>{songInfo.duration ? getTime(songInfo.duration) : "0.00"}</p>
       </div>
       <div className="play-control">
         <FontAwesomeIcon
